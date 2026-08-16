@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock Transfers — Dundrum ⇄ Trinity St.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Password gate -->
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-route">
+        <span class="node node-dundrum"></span>
+        <span class="gate-line"></span>
+        <span class="node node-trinity"></span>
+      </div>
+      <h1 class="gate-title">Stock Transfers</h1>
+      <p class="gate-sub">Dundrum ⇄ Trinity St.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-password" placeholder="Store password" autocomplete="current-password" required />
+        <button type="submit">Enter</button>
+      </form>
+      <p id="gate-error" class="gate-error" hidden>Wrong password. Try again.</p>
+    </div>
+  </div>
+
+  <!-- Main app -->
+  <div id="app" class="app" hidden>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">⇄</span>
+        <div>
+          <h1>Stock Transfers</h1>
+          <p class="route-label">
+            <span class="dot dot-dundrum"></span> Dundrum
+            <span class="route-arrow">⇄</span>
+            <span class="dot dot-trinity"></span> Trinity St.
+          </p>
+        </div>
+      </div>
+      <button id="new-transfer-btn" class="btn btn-primary">+ New transfer</button>
+    </header>
+
+    <main class="content">
+
+      <!-- Dashboard -->
+      <section class="dashboard" aria-label="Summary">
+        <div class="stat-card stat-pending">
+          <span class="stat-num" id="stat-pending">0</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card stat-transit">
+          <span class="stat-num" id="stat-transit">0</span>
+          <span class="stat-label">In transit</span>
+        </div>
+        <div class="stat-card stat-received">
+          <span class="stat-num" id="stat-received">0</span>
+          <span class="stat-label">Received</span>
+        </div>
+        <div class="stat-card stat-total">
+          <span class="stat-num" id="stat-total">0</span>
+          <span class="stat-label">Total logged</span>
+        </div>
+      </section>
+
+      <!-- Filters -->
+      <section class="filters">
+        <input type="text" id="filter-search" placeholder="Search product, SKU, or customer…" />
+        <select id="filter-status">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in_transit">In transit</option>
+          <option value="received">Received</option>
+        </select>
+        <select id="filter-direction">
+          <option value="">Both directions</option>
+          <option value="dundrum_to_trinity">Dundrum → Trinity St.</option>
+          <option value="trinity_to_dundrum">Trinity St. → Dundrum</option>
+        </select>
+      </section>
+
+      <!-- Transfers table -->
+      <section class="table-wrap">
+        <table id="transfers-table">
+          <thead>
+            <tr>
+              <th>Product / SKU</th>
+              <th>Qty</th>
+              <th>Route</th>
+              <th>Customer</th>
+              <th>Notes</th>
+              <th>Logged</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="transfers-body">
+            <!-- rows injected by app.js -->
+          </tbody>
+        </table>
+        <p id="empty-state" class="empty-state" hidden>No transfers logged yet. Click "New transfer" to add the first one.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- New transfer modal -->
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>New transfer</h2>
+        <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <form id="transfer-form">
+        <label>
+          Product name / SKU
+          <input type="text" id="f-product" required />
+        </label>
+        <label>
+          Quantity
+          <input type="number" id="f-quantity" min="1" value="1" required />
+        </label>
+        <label>
+          Direction
+          <select id="f-direction" required>
+            <option value="dundrum_to_trinity">Dundrum → Trinity St.</option>
+            <option value="trinity_to_dundrum">Trinity St. → Dundrum</option>
+          </select>
+        </label>
+        <label>
+          Customer name <span class="optional">(optional)</span>
+          <input type="text" id="f-customer-name" />
+        </label>
+        <label>
+          Customer phone or email <span class="optional">(optional)</span>
+          <input type="text" id="f-customer-contact" />
+        </label>
+        <label>
+          Notes <span class="optional">(optional)</span>
+          <textarea id="f-notes" rows="2"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Log transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
