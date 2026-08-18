@@ -13,8 +13,8 @@ same live list.
 - Dashboard with counts of Pending / In transit / Received / Total.
 - Staff can update a transfer's status as it moves.
 - Mark an individual item as **Not found** — it shows struck-through
-  and greyed out, and blocks that transfer from being set to
-  Received until it's un-marked.
+  and greyed out. This is informational only and doesn't affect the
+  transfer's status options.
 - **Edit** a transfer's items inline (change details/quantity, add or
   remove items) without leaving the table.
 - **Remove** a transfer entirely (with a confirmation prompt).
@@ -97,7 +97,7 @@ plugs into the same project.
 
 - Share the URL and the store password with staff.
 - Click **New transfer** to log one — use **+ Add item** to add more than one product to the same order (each with its own product name, SKU, size, colour code, and quantity).
-- Change the **Status** dropdown on any row to move it from Pending → In transit → Received — updates appear for everyone in real time. Received is disabled while any item on that transfer is marked Not found.
+- Change the **Status** dropdown on any row to move it from Pending → In transit → Received — updates appear for everyone in real time.
 - Click **Not found** beside an item if it can't be located — click it again (now labelled **Mark found**) to undo.
 - Click **Edit** on a transfer to change item details or quantities, add items, or remove individual items — right in the table, no popup. **Save** or **Cancel** when done.
 - Click **Remove** to delete a transfer entirely — you'll be asked to confirm, and this can't be undone.

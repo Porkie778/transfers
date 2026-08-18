@@ -360,8 +360,6 @@ function render() {
         ? ["", "dot-trinity"]
         : ["dot-trinity", ""];
 
-    const hasNotFound = (t.items || []).some((i) => i.notFound);
-
     tr.innerHTML = `
       <td data-label="Items"></td>
       <td data-label="Route">
@@ -456,10 +454,6 @@ function render() {
         const opt = document.createElement("option");
         opt.value = value;
         opt.textContent = label;
-        if (value === "received" && hasNotFound) {
-          opt.disabled = true;
-          opt.textContent += " (resolve not-found items first)";
-        }
         if (value === t.status) opt.selected = true;
         select.appendChild(opt);
       });
