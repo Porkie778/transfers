@@ -10,7 +10,7 @@ import {
   query,
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, STORE_PASSWORD } from "./firebase-config.js";
+import { firebaseConfig, STORE_PASSWORD_HASH } from "./firebase-config.js";
 
 // ---------- Firebase setup ----------
 const firebaseApp = initializeApp(firebaseConfig);
@@ -30,6 +30,19 @@ const STATUS_LABELS = {
 };
 
 let allTransfers = [];
+let itemRowCount = 0;
+
+// ---------- Password hashing ----------
+async function hashPassword(candidate) {
+  const enc = new TextEncoder().encode(candidate);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+// Exposed so you can generate a new hash from the browser console:
+// await hashPassword("your-new-password")
+window.hashPassword = hashPassword;
 
 // ---------- Gate ----------
 const gate = document.getElementById("gate");
@@ -47,17 +60,70 @@ if (sessionStorage.getItem("stock-transfers-unlocked") === "true") {
   unlock();
 }
 
-gateForm.addEventListener("submit", (e) => {
+gateForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const submitBtn = gateForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
   const value = document.getElementById("gate-password").value;
-  if (value === STORE_PASSWORD) {
+  const candidateHash = await hashPassword(value);
+  submitBtn.disabled = false;
+
+  if (candidateHash === STORE_PASSWORD_HASH) {
     sessionStorage.setItem("stock-transfers-unlocked", "true");
     gateError.hidden = true;
+    document.getElementById("gate-password").value = "";
     unlock();
   } else {
     gateError.hidden = false;
   }
 });
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  sessionStorage.removeItem("stock-transfers-unlocked");
+  location.reload();
+});
+
+// ---------- Item rows (New transfer modal) ----------
+const itemsList = document.getElementById("items-list");
+
+function addItemRow(values = {}) {
+  itemRowCount++;
+  const id = itemRowCount;
+  const row = document.createElement("div");
+  row.className = "item-row";
+  row.dataset.rowId = id;
+  row.innerHTML = `
+    <div class="item-row-fields">
+      <input type="text" class="i-product" placeholder="Product name" value="${escapeAttr(values.product || "")}" required />
+      <input type="text" class="i-sku" placeholder="SKU" value="${escapeAttr(values.sku || "")}" />
+      <input type="text" class="i-colour" placeholder="Colour code" value="${escapeAttr(values.colorCode || "")}" />
+      <input type="number" class="i-qty" placeholder="Qty" min="1" value="${values.quantity || 1}" required />
+    </div>
+    <button type="button" class="item-row-remove" aria-label="Remove item">&times;</button>
+  `;
+  row.querySelector(".item-row-remove").addEventListener("click", () => {
+    if (itemsList.children.length > 1) {
+      row.remove();
+    }
+  });
+  itemsList.appendChild(row);
+}
+
+document.getElementById("add-item-btn").addEventListener("click", () => addItemRow());
+
+function resetItemRows() {
+  itemsList.innerHTML = "";
+  addItemRow();
+}
+
+function collectItems() {
+  return Array.from(itemsList.querySelectorAll(".item-row")).map((row) => ({
+    product: row.querySelector(".i-product").value.trim(),
+    sku: row.querySelector(".i-sku").value.trim(),
+    colorCode: row.querySelector(".i-colour").value.trim(),
+    quantity: Number(row.querySelector(".i-qty").value) || 1
+  }));
+}
 
 // ---------- Modal ----------
 const modalOverlay = document.getElementById("modal-overlay");
@@ -65,6 +131,7 @@ const transferForm = document.getElementById("transfer-form");
 
 document.getElementById("new-transfer-btn").addEventListener("click", () => {
   transferForm.reset();
+  resetItemRows();
   modalOverlay.hidden = false;
 });
 document.getElementById("modal-close").addEventListener("click", closeModal);
@@ -79,14 +146,20 @@ function closeModal() {
 
 transferForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const items = collectItems();
+
+  if (items.length === 0 || items.some((i) => !i.product)) {
+    alert("Each item needs at least a product name.");
+    return;
+  }
+
   const submitBtn = transferForm.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.textContent = "Logging…";
 
   try {
     await addDoc(transfersRef, {
-      product: document.getElementById("f-product").value.trim(),
-      quantity: Number(document.getElementById("f-quantity").value),
+      items,
       direction: document.getElementById("f-direction").value,
       customerName: document.getElementById("f-customer-name").value.trim(),
       customerContact: document.getElementById("f-customer-contact").value.trim(),
@@ -150,7 +223,10 @@ function getFiltered() {
     if (status && t.status !== status) return false;
     if (direction && t.direction !== direction) return false;
     if (search) {
-      const haystack = [t.product, t.customerName, t.customerContact]
+      const itemText = (t.items || [])
+        .map((i) => [i.product, i.sku, i.colorCode].join(" "))
+        .join(" ");
+      const haystack = [itemText, t.customerName, t.customerContact]
         .join(" ")
         .toLowerCase();
       if (!haystack.includes(search)) return false;
@@ -203,11 +279,18 @@ function render() {
         ? ["dot-dundrum", "dot-trinity"]
         : ["dot-trinity", "dot-dundrum"];
 
+    const itemsHtml = (t.items || [])
+      .map((i) => {
+        const parts = [];
+        if (i.sku) parts.push(`SKU ${escapeHtml(i.sku)}`);
+        if (i.colorCode) parts.push(escapeHtml(i.colorCode));
+        const meta = parts.length ? ` <span class="cell-sub">(${parts.join(", ")})</span>` : "";
+        return `<div class="item-line">${escapeHtml(i.product)}${meta} <span class="qty">× ${i.quantity}</span></div>`;
+      })
+      .join("");
+
     tr.innerHTML = `
-      <td data-label="Product">
-        <div class="cell-product">${escapeHtml(t.product || "—")}</div>
-      </td>
-      <td data-label="Qty"><span class="qty">${t.quantity ?? "—"}</span></td>
+      <td data-label="Items">${itemsHtml || "—"}</td>
       <td data-label="Route">
         <span class="route-cell">
           <span class="dot ${fromDot}"></span>
@@ -247,4 +330,8 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/"/g, "&quot;");
 }

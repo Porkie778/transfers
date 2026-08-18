@@ -44,7 +44,10 @@
           </p>
         </div>
       </div>
-      <button id="new-transfer-btn" class="btn btn-primary">+ New transfer</button>
+      <div class="topbar-actions">
+        <button id="new-transfer-btn" class="btn btn-primary">+ New transfer</button>
+        <button id="logout-btn" class="btn btn-secondary">Log out</button>
+      </div>
     </header>
 
     <main class="content">
@@ -90,8 +93,7 @@
         <table id="transfers-table">
           <thead>
             <tr>
-              <th>Product / SKU</th>
-              <th>Qty</th>
+              <th>Items</th>
               <th>Route</th>
               <th>Customer</th>
               <th>Notes</th>
@@ -117,14 +119,13 @@
         <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
       </div>
       <form id="transfer-form">
-        <label>
-          Product name / SKU
-          <input type="text" id="f-product" required />
-        </label>
-        <label>
-          Quantity
-          <input type="number" id="f-quantity" min="1" value="1" required />
-        </label>
+        <div class="items-block">
+          <div class="items-block-header">
+            <span>Items</span>
+            <button type="button" id="add-item-btn" class="btn-link">+ Add item</button>
+          </div>
+          <div id="items-list"></div>
+        </div>
         <label>
           Direction
           <select id="f-direction" required>
