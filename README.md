@@ -8,12 +8,18 @@ same live list.
 ## What it does
 
 - Log a transfer with one or more items — each with product name,
-  SKU, colour code, and quantity — plus direction, customer name +
-  contact (optional), and notes.
+  SKU, size, colour code, and quantity — plus direction, customer
+  name + contact (optional), and notes.
 - Dashboard with counts of Pending / In transit / Received / Total.
 - Staff can update a transfer's status as it moves.
-- Search and filter by product, SKU, colour, customer, status, or
-  direction.
+- Mark an individual item as **Not found** — it shows struck-through
+  and greyed out, and blocks that transfer from being set to
+  Received until it's un-marked.
+- **Edit** a transfer's items inline (change details/quantity, add or
+  remove items) without leaving the table.
+- **Remove** a transfer entirely (with a confirmation prompt).
+- Search and filter by product, SKU, size, colour, customer, status,
+  or direction.
 - Simple shared-password screen (password stored as a hash, not
   plaintext) to keep it off Google and casual visitors, with a
   logout button. See the security note below for what this does and
@@ -90,9 +96,12 @@ plugs into the same project.
 ## 4. Using the app
 
 - Share the URL and the store password with staff.
-- Click **New transfer** to log one — use **+ Add item** to add more than one product to the same order (each with its own product name, SKU, colour code, and quantity).
-- Change the **Status** dropdown on any row to move it from Pending → In transit → Received — updates appear for everyone in real time.
-- Use the search box and filters above the table to find a specific transfer (matches on product, SKU, colour, or customer).
+- Click **New transfer** to log one — use **+ Add item** to add more than one product to the same order (each with its own product name, SKU, size, colour code, and quantity).
+- Change the **Status** dropdown on any row to move it from Pending → In transit → Received — updates appear for everyone in real time. Received is disabled while any item on that transfer is marked Not found.
+- Click **Not found** beside an item if it can't be located — click it again (now labelled **Mark found**) to undo.
+- Click **Edit** on a transfer to change item details or quantities, add items, or remove individual items — right in the table, no popup. **Save** or **Cancel** when done.
+- Click **Remove** to delete a transfer entirely — you'll be asked to confirm, and this can't be undone.
+- Use the search box and filters above the table to find a specific transfer (matches on product, SKU, size, colour, or customer).
 - Click **Log out** in the top bar to lock the app again on that device.
 
 ## Customizing
