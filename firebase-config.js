@@ -6,12 +6,12 @@
 // See README.md for full step-by-step setup instructions.
 
 export const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME.firebaseapp.com",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME"
+  apiKey: "AIzaSyBUKVYBHpnME6Xjwffa0yEgL9Ut1ccOrV4",
+  authDomain: "stock-transfers-32836.firebaseapp.com",
+  projectId: "stock-transfers-32836",
+  storageBucket: "stock-transfers-32836.firebasestorage.app",
+  messagingSenderId: "961960621593",
+  appId: "1:961960621593:web:d8fc806e0112a108955c88"
 };
 
 // ── Shared store password ────────────────────────────────────────────
